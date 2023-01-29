@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "release": "rm dist -rf; mkdir dist; cp index.html dist; webpack; mv dist docs;",
+    "release": "rm dist -rf; rm docs -rf; mkdir dist; cp index.html dist; webpack; mv dist docs;",
     "watch": "rm dist -rf; mkdir dist; cp index.html dist; webpack-dev-server;"
   },
   "dependencies": {

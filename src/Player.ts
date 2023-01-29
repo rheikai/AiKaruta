@@ -21,13 +21,13 @@ export class Player {
         let sumXPossibleFudas = 0;
         let sumYPossibleFudas = 0;
 
-        for (let row = 0; row < config.N_FUDA_Y; row++) {
+        for (let row = 0; row < config.N_FUDA_Y * 2; row++) {
             for (let column = 0; column < config.N_FUDA_X; column++) {
                 const idx = fudaMatrix.getFudaMatrix()[row][column];
-                if (idx !== -1 && karutas[idx].kana.join().startsWith(yomaretaStr)) {
-                    numPossibleFudas++;
+                if (idx !== -1 && karutas[idx].kana.join("").startsWith(yomaretaStr)) {
                     const fudaLocation = fudaMatrix.getFudaPosition(idx);
                     if (fudaLocation !== null) {
+                        numPossibleFudas++;
                         sumXPossibleFudas += (fudaLocation.left + fudaLocation.right) * 0.5;
                         sumYPossibleFudas += (fudaLocation.top + fudaLocation.bottom) * 0.5;
                     }
@@ -43,10 +43,13 @@ export class Player {
             y: sumYPossibleFudas / numPossibleFudas
         };
 
-
         const distance = Math.sqrt(Math.pow(possibleFudaPositionsCenter.x - this._handPosition.x, 2) + Math.pow(possibleFudaPositionsCenter.y - this._handPosition.y, 2));
         const tripPerFrame = config.HAND_DISPLACEMENT_PER_SEC / config.FPS;
         if (distance <= tripPerFrame) {
+            this._handPosition = {
+                x: possibleFudaPositionsCenter.x,
+                y: possibleFudaPositionsCenter.y
+            }
             return;
         }
 

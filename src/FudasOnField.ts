@@ -38,7 +38,10 @@ class FudasOnField {
         }
     }
 
-    public selectOneFudaRandom(): number {
+    public selectOneFudaRandom(): number | null {
+        if (this._fudasP1.length + this._fudasP2.length === 0) {
+            return null;
+        }
         const rand = Math.floor(Math.random() * (this._fudasP1.length + this._fudasP2.length));
         if (rand < this._fudasP1.length) {
             return this._fudasP1[rand];

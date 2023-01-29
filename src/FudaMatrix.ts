@@ -17,11 +17,11 @@ class FudaMatrix {
     }
 
     public setFudaMatrix(fudaPositions: number[][]): void {
-        if (fudaPositions.length !== config.N_FUDA_Y) {
+        if (fudaPositions.length !== config.N_FUDA_Y * 2) {
             return;
         }
 
-        for (let i = 0; i < config.N_FUDA_Y; i++) {
+        for (let i = 0; i < config.N_FUDA_Y * 2; i++) {
             if (fudaPositions[i].length !== config.N_FUDA_X) {
                 return;
             }
@@ -71,7 +71,7 @@ class FudaMatrix {
     }
 
     public getFudaPosition(fudaId: number): { top: number, bottom: number, left: number, right: number } | null {
-        for (let row = 0; row < config.N_FUDA_Y; row++) {
+        for (let row = 0; row < config.N_FUDA_Y * 2; row++) {
             for (let column = 0; column < config.N_FUDA_X; column++) {
                 if (this._fudaMatrix[row][column] === fudaId) {
                     return this.getFudaPositionHelper(row, column);
@@ -130,7 +130,7 @@ class FudaMatrix {
     }
 
     public removeFuda(fudaId: number): void {
-        for (let row = 0; row < config.N_FUDA_Y; row++) {
+        for (let row = 0; row < config.N_FUDA_Y * 2; row++) {
             for (let column = 0; column < config.N_FUDA_X; column++) {
                 if (this._fudaMatrix[row][column] === fudaId) {
                     this._fudaMatrix[row][column] = -1;
@@ -140,6 +140,7 @@ class FudaMatrix {
     }
 
     public render(context: CanvasRenderingContext2D): void {
+        let a = 0;
         for (let row = 0; row < config.N_FUDA_Y * 2; row++) {
             for (let column = 0; column < config.N_FUDA_X; column++) {
                 const position = this.getFudaPositionHelper(row, column);
@@ -147,9 +148,11 @@ class FudaMatrix {
                 context.strokeRect(position.left, position.top, config.FUDA_WIDTH, config.FUDA_HEIGHT);
                 if (this._fudaMatrix[row][column] !== -1) {
                     context.fillText(this._fudaMatrix[row][column].toString(), (position.left + position.right) * 0.5, (position.top + position.bottom) * 0.5);
+                    a++;
                 }
             }
         }
+        console.log(a);
     }
 }
 
