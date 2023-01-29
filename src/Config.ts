@@ -16,7 +16,7 @@ class Config {
     // Hz
     private _FPS = 10;
 
-    private _PLAY_SPEED_RATIO = 10;
+    private _PLAY_SPEED_RATIO = 100;
 
     // mm
     private _HAND_DISPLACEMENT_PER_SEC = 400;

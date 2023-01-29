@@ -1,29 +1,33 @@
-import { fudasOnFieldMatrix } from "./FudasOnFieldMatrix";
+import { FudasOnFieldMatrix } from "./FudasOnFieldMatrix";
 import { config } from "./Config";
 import { karutas } from "./karutas";
+import { KarutaLogic } from "./KarutaLogics/KarutaLogic";
 
 export class PlayerHandXy {
     private _handXy: { x: number, y: number };
-    public constructor() {
+    private _karutaLogic: KarutaLogic;
+
+    public constructor(karutaLogic: KarutaLogic) {
         this._handXy = { x: 0, y: 0 };
+        this._karutaLogic = karutaLogic;
     }
 
     public getHandXy(): { x: number, y: number } {
         return { x: this._handXy.x, y: this._handXy.y };
     }
 
-    public setInitialHandXy(y: number): void {
-        this._handXy = { x: config.FUDA_WIDTH() * config.N_FUDA_X() * 0.5, y: y };
+    public setInitialHandXy(y: number, fudasMatrix: number[][]): void {
+        this._handXy = this._karutaLogic.initialHandXy(y, fudasMatrix);
     }
 
-    public setNextHandXy(yomaretaStr: string): void {
+    public setNextHandXy(yomaretaStr: string, fudasOnFieldMatrix: FudasOnFieldMatrix): void {
         let numPossibleFudas = 0;
         let sumXPossibleFudas = 0;
         let sumYPossibleFudas = 0;
 
         for (let row = 0; row < config.N_FUDA_Y(); row++) {
             for (let column = 0; column < config.N_FUDA_X(); column++) {
-                const index = fudasOnFieldMatrix.getFudaMatrix()[row][column];
+                const index = fudasOnFieldMatrix.getFudasMatrix()[row][column];
                 if (index !== -1 && karutas[index].kana.join("").startsWith(yomaretaStr)) {
                     const fudaXy = fudasOnFieldMatrix.getFudaXyFromFudaId(index);
                     if (fudaXy !== null) {

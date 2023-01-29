@@ -1,52 +1,67 @@
 import { karutas } from "./karutas";
 import { PlayerHandXy } from "./PlayerHandXy";
-import { fudasOnFieldMatrix } from "./FudasOnFieldMatrix";
+import { FudasOnFieldMatrix } from "./FudasOnFieldMatrix";
 import { config } from "./Config";
+import { KarutaLogicRandom } from "./KarutaLogics/KarutaLogicRandom";
 
-
-let p1 = new PlayerHandXy();
-let p2 = new PlayerHandXy();
 
 const karutaField: HTMLCanvasElement = document.querySelector<HTMLCanvasElement>("#karuta_field")!;
 const context = karutaField.getContext("2d")!;
 
-fudasOnFieldMatrix.setFudaMatrixRandom();
+
+const fudasOnFieldMatrix = new FudasOnFieldMatrix(new KarutaLogicRandom());
+let player1 = new PlayerHandXy(new KarutaLogicRandom());
+let player2 = new PlayerHandXy(new KarutaLogicRandom());
+
+fudasOnFieldMatrix.setFudasMatrix();
 fudasOnFieldMatrix.render(context);
 
 
 function goNextFrame(targetFudaId: number, yomaretaStr: string) {
-    p1.setNextHandXy(yomaretaStr);
-    p2.setNextHandXy(yomaretaStr);
+    player1.setNextHandXy(yomaretaStr, fudasOnFieldMatrix);
+    player2.setNextHandXy(yomaretaStr, fudasOnFieldMatrix);
 
     context.clearRect(0, 0, karutaField.width, karutaField.height);
     fudasOnFieldMatrix.render(context);
-    p1.renderHand(context);
-    p2.renderHand(context);
+    player1.renderHand(context);
+    player2.renderHand(context);
 
-    if (fudasOnFieldMatrix.fudaTaken(targetFudaId, p1.getHandXy(), p2.getHandXy()) === null) {
+    const fudaTaken = fudasOnFieldMatrix.fudaTaken(targetFudaId, player1.getHandXy(), player2.getHandXy());
+    if (fudaTaken === null) {
         setTimeout(goNextFrame, 1000 / config.FPS() / config.PLAY_SPEED_RATIO(), targetFudaId, yomaretaStr);
     } else {
+        const takenFudaRow = fudasOnFieldMatrix.getFudaRowColumnFromFudaId(targetFudaId)!.row;
+        if (fudaTaken === 1 && takenFudaRow > config.N_FUDA_Y() / 2) {
+            fudasOnFieldMatrix.okurifuda(1, 2);
+        } else if (fudaTaken === 2 && takenFudaRow <= config.N_FUDA_Y() / 2) {
+            fudasOnFieldMatrix.okurifuda(2, 1);
+        }
+
         fudasOnFieldMatrix.removeFuda(targetFudaId);
-        goNextYomifuda();
+
+        const winner = fudasOnFieldMatrix.getWinner();
+        if (winner === null) {
+            goNextYomifuda();
+        } else {
+            alert(`おわり！　${winner}の勝ち！`);
+            fudasOnFieldMatrix.setFudasMatrix();
+            fudasOnFieldMatrix.render(context);
+
+            goNextYomifuda();
+        }
     }
 }
 
 function goNextYomifuda() {
-    p1.setInitialHandXy(0);
-    p2.setInitialHandXy(config.FUDA_HEIGHT() * config.N_FUDA_Y() + config.MARGIN_Y1() * config.N_FUDA_Y() + config.MARGIN_Y3() - config.MARGIN_Y1());
+    player1.setInitialHandXy(0, fudasOnFieldMatrix.getFudasMatrix());
+    player2.setInitialHandXy(config.FUDA_HEIGHT() * config.N_FUDA_Y() + config.MARGIN_Y1() * config.N_FUDA_Y() + config.MARGIN_Y3() - config.MARGIN_Y1(), fudasOnFieldMatrix.getFudasMatrix());
 
     fudasOnFieldMatrix.render(context);
-    p1.renderHand(context);
-    p2.renderHand(context);
+    player1.renderHand(context);
+    player2.renderHand(context);
 
-    const targetFudaId = fudasOnFieldMatrix.selectOneFudaRandom();
-    if (targetFudaId === null) {
-        alert("おわり！");
-        fudasOnFieldMatrix.setFudaMatrixRandom();
-        fudasOnFieldMatrix.render(context);
-    } else {
-        goNextFrame(targetFudaId, karutas[targetFudaId].kana.join(""));
-    }
+    const targetFudaId = fudasOnFieldMatrix.selectOneFudaRandom()!;
+    goNextFrame(targetFudaId, karutas[targetFudaId].kana.join(""));
 }
 
 document.querySelector("#b")?.addEventListener("click", () => {

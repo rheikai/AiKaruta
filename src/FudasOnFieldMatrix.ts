@@ -1,14 +1,19 @@
 import { config } from "./Config";
+import { KarutaLogic } from "./KarutaLogics/KarutaLogic";
 import { karutas } from "./karutas";
 
-class FudasOnFieldMatrix {
-    private _fudaMatrix: number[][];
-    public constructor() {
-        this._fudaMatrix = [];
+export class FudasOnFieldMatrix {
+    private _fudasMatrix: number[][];
+    private _karutaLogic: KarutaLogic;
+
+    public constructor(karutaLogic: KarutaLogic) {
+        this._karutaLogic = karutaLogic;
+
+        this._fudasMatrix = [];
         for (let row = 0; row < config.N_FUDA_Y(); row++) {
-            this._fudaMatrix.push([]);
+            this._fudasMatrix.push([]);
             for (let column = 0; column < config.N_FUDA_X(); column++) {
-                this._fudaMatrix[row].push(-1);
+                this._fudasMatrix[row].push(-1);
             }
         }
     }
@@ -17,7 +22,7 @@ class FudasOnFieldMatrix {
         let fudasPlayer1: number[] = [];
         for (let row = 0; row < config.N_FUDA_Y() / 2; row++) {
             for (let column = 0; column < config.N_FUDA_X(); column++) {
-                fudasPlayer1.push(this._fudaMatrix[row][column]);
+                fudasPlayer1.push(this._fudasMatrix[row][column]);
             }
         }
         return fudasPlayer1;
@@ -27,17 +32,17 @@ class FudasOnFieldMatrix {
         let fudasPlayer2: number[] = [];
         for (let row = config.N_FUDA_Y() / 2; row < config.N_FUDA_Y(); row++) {
             for (let column = 0; column < config.N_FUDA_X(); column++) {
-                fudasPlayer2.push(this._fudaMatrix[row][column]);
+                fudasPlayer2.push(this._fudasMatrix[row][column]);
             }
         }
         return fudasPlayer2;
     }
 
-    public getFudaMatrix() {
-        return this._fudaMatrix.slice();
+    public getFudasMatrix() {
+        return this._fudasMatrix.slice();
     }
 
-    public setFudaMatrixRandom(): void {
+    public setFudasMatrix(): void {
         let fudasPlayer1: number[] = [];
         let fudasPlayer2: number[] = [];
 
@@ -58,55 +63,34 @@ class FudasOnFieldMatrix {
             fudaIds.splice(index, 1);
         }
 
-
-        this._fudaMatrix = [];
-        for (let row = 0; row < config.N_FUDA_Y(); row++) {
-            this._fudaMatrix.push([]);
-            for (let column = 0; column < config.N_FUDA_X(); column++) {
-                this._fudaMatrix[row].push(-1);
-            }
-        }
-
-
-        let nonreservedPlayer1Matrix: { row: number, column: number }[] = [];
-        for (let row = 0; row < config.N_FUDA_Y() / 2; row++) {
-            for (let column = 0; column < config.N_FUDA_X(); column++) {
-                nonreservedPlayer1Matrix.push({ row: row, column: column });
-            }
-        }
-        for (let i = 0; i < fudasPlayer1.length; i++) {
-            const index = Math.floor(Math.random() * nonreservedPlayer1Matrix.length);
-            this._fudaMatrix[nonreservedPlayer1Matrix[index].row][nonreservedPlayer1Matrix[index].column] = fudasPlayer1[i];
-            nonreservedPlayer1Matrix.splice(index, 1);
-        }
-
-
-        let nonreservedPlayer2Matrix: { row: number, column: number }[] = [];
-        for (let row = 0; row < config.N_FUDA_Y() / 2; row++) {
-            for (let column = 0; column < config.N_FUDA_X(); column++) {
-                nonreservedPlayer2Matrix.push({ row: row, column: column });
-            }
-        }
-        for (let i = 0; i < fudasPlayer2.length; i++) {
-            const index = Math.floor(Math.random() * nonreservedPlayer2Matrix.length);
-            this._fudaMatrix[nonreservedPlayer2Matrix[index].row + config.N_FUDA_Y() / 2][nonreservedPlayer2Matrix[index].column] = fudasPlayer2[i];
-            nonreservedPlayer2Matrix.splice(index, 1);
-        }
+        this._fudasMatrix = this._karutaLogic.fudasMatrix(fudasPlayer1, fudasPlayer2);
     }
 
-    public okurifuda(): void {
+    public okurifuda(from: number, to: number): void {
+        const okurifuda = this._karutaLogic.okurifuda(from, to, this._fudasMatrix.slice());
 
+        this._fudasMatrix[okurifuda.toRowColumn.row][okurifuda.toRowColumn.column] = this._fudasMatrix[okurifuda.fromRowColumn.row][okurifuda.toRowColumn.column];
+        this._fudasMatrix[okurifuda.fromRowColumn.row][okurifuda.fromRowColumn.column] = -1;
     }
 
-    public getFudaXyFromFudaId(fudaId: number): { top: number, bottom: number, left: number, right: number } | null {
+    public getFudaRowColumnFromFudaId(fudaId: number): { row: number, column: number } | null {
         for (let row = 0; row < config.N_FUDA_Y(); row++) {
             for (let column = 0; column < config.N_FUDA_X(); column++) {
-                if (this._fudaMatrix[row][column] === fudaId) {
-                    return this.getFudaXyFromRowColumn(row, column);
+                if (this._fudasMatrix[row][column] === fudaId) {
+                    return { row: row, column: column };
                 }
             }
         }
         return null;
+    }
+
+    public getFudaXyFromFudaId(fudaId: number): { top: number, bottom: number, left: number, right: number } | null {
+        const fuda = this.getFudaRowColumnFromFudaId(fudaId);
+        if (fuda !== null) {
+            return this.getFudaXyFromRowColumn(fuda.row, fuda.column);
+        } else {
+            return null;
+        }
     }
 
     private getFudaXyFromRowColumn(row: number, column: number): { top: number, bottom: number, left: number, right: number } {
@@ -175,11 +159,21 @@ class FudasOnFieldMatrix {
     public removeFuda(fudaId: number): void {
         for (let row = 0; row < config.N_FUDA_Y(); row++) {
             for (let column = 0; column < config.N_FUDA_X(); column++) {
-                if (this._fudaMatrix[row][column] === fudaId) {
-                    this._fudaMatrix[row][column] = -1;
+                if (this._fudasMatrix[row][column] === fudaId) {
+                    this._fudasMatrix[row][column] = -1;
                 }
             }
         }
+    }
+
+    public getWinner(): number | null {
+        if (this.getFudasPlayer1().find(fudaId => fudaId !== -1) === undefined) {
+            return 1;
+        }
+        if (this.getFudasPlayer2().find(fudaId => fudaId !== -1) === undefined) {
+            return 2;
+        }
+        return null;
     }
 
     public render(context: CanvasRenderingContext2D): void {
@@ -188,12 +182,10 @@ class FudasOnFieldMatrix {
                 const fudaXy = this.getFudaXyFromRowColumn(row, column);
 
                 context.strokeRect(fudaXy.left, fudaXy.top, config.FUDA_WIDTH(), config.FUDA_HEIGHT());
-                if (this._fudaMatrix[row][column] !== -1) {
-                    context.fillText(this._fudaMatrix[row][column].toString(), (fudaXy.left + fudaXy.right) * 0.5, (fudaXy.top + fudaXy.bottom) * 0.5);
+                if (this._fudasMatrix[row][column] !== -1) {
+                    context.fillText(this._fudasMatrix[row][column].toString(), (fudaXy.left + fudaXy.right) * 0.5, (fudaXy.top + fudaXy.bottom) * 0.5);
                 }
             }
         }
     }
 }
-
-export const fudasOnFieldMatrix = new FudasOnFieldMatrix();
