@@ -26,7 +26,6 @@ class Logger {
             winner: -1,
             handXys: []
         });
-        console.log(this._logs);
     }
 
     public setHandXy(player1: { x: number, y: number }, player2: { x: number, y: number }): void {
@@ -41,6 +40,10 @@ class Logger {
 
     public setGameWinner(player: number): void {
         this._logs[this._logs.length - 1].winner = player;
+    }
+
+    public toString(): string {
+        return JSON.stringify(this._logs);
     }
 }
 

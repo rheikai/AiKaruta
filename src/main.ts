@@ -17,6 +17,8 @@ let player2 = new PlayerHandXy(new KarutaLogicRandom());
 fudasOnFieldMatrix.setFudasMatrix();
 fudasOnFieldMatrix.render(context);
 
+let game_count = 0;
+const MAX_GAME_COUNT = Number.parseInt(document.querySelector<HTMLInputElement>("#max_game_count")!.value);
 
 function goNextFrame(yomifudaId: number, yomaretaStr: string) {
     player1.setNextHandXy(yomaretaStr, fudasOnFieldMatrix);
@@ -47,12 +49,17 @@ function goNextFrame(yomifudaId: number, yomaretaStr: string) {
             goNextYomifuda();
         } else {
             logger.setGameWinner(winner);
-            alert(`おわり！　${winner}の勝ち！`);
+            console.log(`${winner}の勝ち！`);
             fudasOnFieldMatrix.setFudasMatrix();
             fudasOnFieldMatrix.render(context);
 
-            logger.newGame();
-            goNextYomifuda();
+            if (game_count < MAX_GAME_COUNT) {
+                game_count++;
+                logger.newGame();
+                goNextYomifuda();
+            } else {
+                document.querySelector<HTMLTextAreaElement>("#game_logs")!.value = logger.toString();
+            }
         }
     }
 }
@@ -72,7 +79,8 @@ function goNextYomifuda() {
     goNextFrame(yomifudaId, karutas[yomifudaId].kana.join(""));
 }
 
-document.querySelector("#b")?.addEventListener("click", () => {
+document.querySelector("#start_games")?.addEventListener("click", () => {
+    game_count++;
     logger.newGame();
     goNextYomifuda();
 });
