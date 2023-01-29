@@ -108,22 +108,22 @@ export class FudasOnFieldMatrix {
         return { top: top, bottom: bottom, left: left, right: right };
     }
 
-    public fudaTaken(targetFudaId: number, handXyPlayer1: { x: number, y: number }, handXyPlayer2: { x: number, y: number }): number | null {
-        const fudaXy = this.getFudaXyFromFudaId(targetFudaId);
+    public getFudaWinner(yomifudaId: number, handXyPlayer1: { x: number, y: number }, handXyPlayer2: { x: number, y: number }): number | null {
+        const fudaXy = this.getFudaXyFromFudaId(yomifudaId);
         if (fudaXy === null) {
             return null;
         }
 
-        const player1HandOnTargetFuda = fudaXy.top <= handXyPlayer1.y && handXyPlayer1.y <= fudaXy.bottom && fudaXy.left <= handXyPlayer1.x && handXyPlayer1.x <= fudaXy.right;
-        const player2HandOnTargetFuda = fudaXy.top <= handXyPlayer2.y && handXyPlayer2.y <= fudaXy.bottom && fudaXy.left <= handXyPlayer2.x && handXyPlayer2.x <= fudaXy.right;
+        const player1HandOnYomifuda = fudaXy.top <= handXyPlayer1.y && handXyPlayer1.y <= fudaXy.bottom && fudaXy.left <= handXyPlayer1.x && handXyPlayer1.x <= fudaXy.right;
+        const player2HandOnYomifuda = fudaXy.top <= handXyPlayer2.y && handXyPlayer2.y <= fudaXy.bottom && fudaXy.left <= handXyPlayer2.x && handXyPlayer2.x <= fudaXy.right;
 
-        if (!player1HandOnTargetFuda && !player2HandOnTargetFuda) {
+        if (!player1HandOnYomifuda && !player2HandOnYomifuda) {
             return null;
         }
-        if (player1HandOnTargetFuda && !player2HandOnTargetFuda) {
+        if (player1HandOnYomifuda && !player2HandOnYomifuda) {
             return 1;
         }
-        if (!player1HandOnTargetFuda && player2HandOnTargetFuda) {
+        if (!player1HandOnYomifuda && player2HandOnYomifuda) {
             return 2;
         }
 
@@ -166,7 +166,7 @@ export class FudasOnFieldMatrix {
         }
     }
 
-    public getWinner(): number | null {
+    public getGameWinner(): number | null {
         if (this.getFudasPlayer1().find(fudaId => fudaId !== -1) === undefined) {
             return 1;
         }
