@@ -1,4 +1,3 @@
-import { createPrinter } from "../node_modules/typescript/lib/typescript";
 import { config } from "./Config";
 import { KarutaLogic } from "./KarutaLogics/KarutaLogic";
 import { karutas } from "./karutas";
@@ -75,19 +74,19 @@ export class FudasOnFieldMatrix {
 
         for (let row = config.N_FUDA_Y() / 2; row < config.N_FUDA_Y(); row++) {
             for (let column = 0; column < config.N_FUDA_X(); column++) {
-                this._fudasMatrix[row][column] = fudaMatrixPlayer2[config.N_FUDA_Y() - row][config.N_FUDA_X() - column - 1];
+                this._fudasMatrix[row][column] = fudaMatrixPlayer2[config.N_FUDA_Y() - row - 1][config.N_FUDA_X() - column - 1];
             }
         }
     }
 
-    public okurifuda(from: number): void {
+    public okurifudaFrom(player: number): void {
         function revRc(rc: { row: number, column: number }): { row: number, column: number } {
-            return { row: config.N_FUDA_Y() - rc.row - 1, column: config.N_FUDA_X() - rc.column - 1 }
+            return { row: config.N_FUDA_Y() - rc.row - 1, column: config.N_FUDA_X() - rc.column - 1 };
         }
 
         let oldRowColumn = { row: 0, column: 0 };
         let newRowColumn = { row: 0, column: 0 };
-        if (from === 1) {
+        if (player === 1) {
             oldRowColumn = this._karutaLogicPlayer1.sendOkurifuda(this._fudasMatrix.slice());
             newRowColumn = revRc(this._karutaLogicPlayer2.receiveOkurifuda(this.getReversedMatrix(), revRc(oldRowColumn)));
         } else {

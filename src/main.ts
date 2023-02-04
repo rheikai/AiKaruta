@@ -8,6 +8,8 @@ import { KarutaLogicScf } from "./KarutaLogics/KarutaLogicScf";
 
 
 const karutaField: HTMLCanvasElement = document.querySelector<HTMLCanvasElement>("#karuta_field")!;
+karutaField.height = config.FIELD_HEIGHT() + 10;
+karutaField.width = config.FIELD_WIDTH() + 10;
 const context = karutaField.getContext("2d")!;
 
 const player1Logic = new KarutaLogicRandom();
@@ -21,7 +23,7 @@ fudasOnFieldMatrix.setFudasMatrix();
 fudasOnFieldMatrix.render(context);
 
 let gameCount = 0;
-const maxGameCount = Number.parseInt(document.querySelector<HTMLInputElement>("#max_game_count")!.value);
+let maxGameCount = Number.parseInt(document.querySelector<HTMLInputElement>("#max_game_count")!.value);
 
 function goNextFrame(yomifudaId: number, yomaretaStr: string, frame: number) {
     player1.setNextHandXy(yomaretaStr, fudasOnFieldMatrix);
@@ -30,18 +32,18 @@ function goNextFrame(yomifudaId: number, yomaretaStr: string, frame: number) {
 
     context.clearRect(0, 0, karutaField.width, karutaField.height);
     fudasOnFieldMatrix.render(context);
-    player1.renderHand(context, false);
-    player2.renderHand(context, true);
+    player1.renderHand(context);
+    player2.renderHand(context);
 
     const fudaWinner = fudasOnFieldMatrix.getFudaWinner(yomifudaId, player1.getHandXy(), player2.getHandXy());
     if (fudaWinner === null) {
         setTimeout(goNextFrame, 1000 / config.FPS() / config.PLAY_SPEED_RATIO(), yomifudaId, karutas[yomifudaId].kana.join("").substring(0, Math.ceil((1000 - frame) * config.YOMI_CHAR_PER_FRAME())), frame - 1);
     } else {
         const takenFudaRow = fudasOnFieldMatrix.getFudaRowColumnFromFudaId(yomifudaId)!.row;
-        if (fudaWinner === 1 && takenFudaRow > config.N_FUDA_Y() / 2) {
-            fudasOnFieldMatrix.okurifuda(1);
-        } else if (fudaWinner === 2 && takenFudaRow <= config.N_FUDA_Y() / 2) {
-            fudasOnFieldMatrix.okurifuda(2);
+        if (fudaWinner === 1 && takenFudaRow >= config.N_FUDA_Y() / 2) {
+            fudasOnFieldMatrix.okurifudaFrom(1);
+        } else if (fudaWinner === 2 && takenFudaRow < config.N_FUDA_Y() / 2) {
+            fudasOnFieldMatrix.okurifudaFrom(2);
         }
 
         fudasOnFieldMatrix.removeFuda(yomifudaId);
@@ -52,7 +54,6 @@ function goNextFrame(yomifudaId: number, yomaretaStr: string, frame: number) {
             goNextYomifuda();
         } else {
             logger.setGameWinner(winner);
-            console.log(`${winner}の勝ち！`);
             fudasOnFieldMatrix.setFudasMatrix();
             fudasOnFieldMatrix.render(context);
 
@@ -62,6 +63,8 @@ function goNextFrame(yomifudaId: number, yomaretaStr: string, frame: number) {
                 goNextYomifuda();
             } else {
                 document.querySelector<HTMLTextAreaElement>("#game_logs")!.value = logger.toString();
+                console.log(logger.getWinCount());
+                document.querySelector<HTMLButtonElement>("#start_games")?.click();
             }
         }
     }
@@ -71,13 +74,13 @@ function goNextYomifuda() {
     const yomifudaId = fudasOnFieldMatrix.selectOneFudaRandom()!;
     logger.setYomiuda(yomifudaId);
 
-    player1.setInitialHandXy(fudasOnFieldMatrix.getFudasMatrix());
-    player2.setInitialHandXy(fudasOnFieldMatrix.getReversedMatrix());
+    player1.setInitialHandXy(fudasOnFieldMatrix, false);
+    player2.setInitialHandXy(fudasOnFieldMatrix, true);
     logger.setHandXy(player1.getHandXy(), player2.getHandXy());
 
     fudasOnFieldMatrix.render(context);
-    player1.renderHand(context, false);
-    player2.renderHand(context, true);
+    player1.renderHand(context);
+    player2.renderHand(context);
 
     goNextFrame(yomifudaId, "", 1000);
 }
@@ -85,7 +88,11 @@ function goNextYomifuda() {
 document.querySelector("#start_games")?.addEventListener("click", () => {
     gameCount = 0;
     gameCount++;
+    logger.clear();
+    document.querySelector<HTMLTextAreaElement>("#game_logs")!.value = "";
+    maxGameCount = Number.parseInt(document.querySelector<HTMLInputElement>("#max_game_count")!.value);
     logger.newGame();
+    console.log("NEW GAME!");
     goNextYomifuda();
 });
 

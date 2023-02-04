@@ -16,7 +16,7 @@ class Config {
     // Hz
     private _FPS = 10;
 
-    private _PLAY_SPEED_RATIO = 100;
+    private _PLAY_SPEED_RATIO = Infinity;
 
     private _YOMI_CHAR_PER_FRAME = 0.5;
 
@@ -42,6 +42,14 @@ class Config {
 
     public MARGIN_Y3(): number {
         return this._MARGIN_Y3;
+    }
+
+    public FIELD_WIDTH(): number {
+        return this.FUDA_WIDTH() * this.N_FUDA_X() + this.MARGIN_X() * (this.N_FUDA_X() - 1);
+    }
+
+    public FIELD_HEIGHT(): number {
+        return this.FUDA_HEIGHT() * this.N_FUDA_Y() + this.MARGIN_Y1() * (this.N_FUDA_Y() - 1) + this.MARGIN_Y3() - this.MARGIN_Y1();
     }
 
     public N_FUDA_X(): number {

@@ -7,7 +7,7 @@ export class KarutaLogicRandom extends KarutaLogic {
     }
 
     public override initialHandXy(fudasMatrix: number[][]): { x: number, y: number } {
-        return { x: Math.random() * (config.FUDA_WIDTH() * config.N_FUDA_X() + config.MARGIN_X() * (config.N_FUDA_X() - 1)), y: 0 };
+        return { x: Math.random() * (config.FIELD_WIDTH()), y: 0 };
     }
 
     public override fudasMatrix(myFudas: number[], opponentFudas: number[]): number[][] {

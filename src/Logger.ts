@@ -9,8 +9,9 @@ class Logger {
                 player2: { x: number, y: number }
             }[]
         }[]
-    }[] = [];
+    }[];
     public constructor() {
+        this._logs = [];
     }
 
     public newGame(): void {
@@ -42,8 +43,25 @@ class Logger {
         this._logs[this._logs.length - 1].winner = player;
     }
 
+    public getWinCount(): { player1: number, player2: number } {
+        let winCountPlayer1 = 0;
+        let winCountPlayer2 = 0;
+        for (let game of this._logs) {
+            if (game.winner === 1) {
+                winCountPlayer1++;
+            } else {
+                winCountPlayer2++;
+            }
+        }
+        return { player1: winCountPlayer1, player2: winCountPlayer2 };
+    }
+
     public toString(): string {
         return JSON.stringify(this._logs);
+    }
+
+    public clear(): void {
+        this._logs = [];
     }
 }
 
