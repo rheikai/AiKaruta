@@ -16,8 +16,8 @@ export class PlayerHandXy {
         return { x: this._handXy.x, y: this._handXy.y };
     }
 
-    public setInitialHandXy(y: number, fudasMatrix: number[][]): void {
-        this._handXy = this._karutaLogic.initialHandXy(y, fudasMatrix);
+    public setInitialHandXy(fudasMatrix: number[][]): void {
+        this._handXy = this._karutaLogic.initialHandXy(fudasMatrix);
     }
 
     public setNextHandXy(yomaretaStr: string, fudasOnFieldMatrix: FudasOnFieldMatrix): void {
@@ -64,9 +64,15 @@ export class PlayerHandXy {
         };
     }
 
-    public renderHand(context: CanvasRenderingContext2D): void {
+    public renderHand(context: CanvasRenderingContext2D, reversed: boolean): void {
         context.beginPath();
-        context.arc(this._handXy.x, this._handXy.y, 10, 0, Math.PI * 2);
+        if (!reversed) {
+            context.arc(this._handXy.x, this._handXy.y, 10, 0, Math.PI * 2);
+        } else {
+            const reversedX = config.FUDA_WIDTH() * config.N_FUDA_X() + config.MARGIN_X() * (config.N_FUDA_X() - 1) - this._handXy.x;
+            const reversedY = config.FUDA_HEIGHT() * config.N_FUDA_Y() + config.MARGIN_Y1() * (config.N_FUDA_Y() - 1) - config.MARGIN_Y1() + config.MARGIN_Y3() - this._handXy.y;
+            context.arc(reversedX, reversedY, 10, 0, Math.PI * 2);
+        }
         context.stroke();
     }
 }

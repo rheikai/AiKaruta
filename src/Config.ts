@@ -18,6 +18,8 @@ class Config {
 
     private _PLAY_SPEED_RATIO = 100;
 
+    private _YOMI_CHAR_PER_FRAME = 0.5;
+
     // mm
     private _HAND_DISPLACEMENT_PER_SEC = 400;
 
@@ -64,6 +66,10 @@ class Config {
 
     public setPLAY_SPEED_RATIO(value: number): void {
         this._PLAY_SPEED_RATIO = value;
+    }
+
+    public YOMI_CHAR_PER_FRAME(): number {
+        return this._YOMI_CHAR_PER_FRAME;
     }
 
     public HAND_DISPLACEMENT_PER_SEC(): number {

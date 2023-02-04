@@ -1,14 +1,16 @@
+import { createPrinter } from "../node_modules/typescript/lib/typescript";
 import { config } from "./Config";
 import { KarutaLogic } from "./KarutaLogics/KarutaLogic";
 import { karutas } from "./karutas";
 
 export class FudasOnFieldMatrix {
     private _fudasMatrix: number[][];
-    private _karutaLogic: KarutaLogic;
+    private _karutaLogicPlayer1: KarutaLogic;
+    private _karutaLogicPlayer2: KarutaLogic;
 
-    public constructor(karutaLogic: KarutaLogic) {
-        this._karutaLogic = karutaLogic;
-
+    public constructor(karutaLogicPlayer1: KarutaLogic, karutaLogicPlayer2: KarutaLogic) {
+        this._karutaLogicPlayer1 = karutaLogicPlayer1;
+        this._karutaLogicPlayer2 = karutaLogicPlayer2;
         this._fudasMatrix = [];
         for (let row = 0; row < config.N_FUDA_Y(); row++) {
             this._fudasMatrix.push([]);
@@ -63,14 +65,37 @@ export class FudasOnFieldMatrix {
             fudaIds.splice(index, 1);
         }
 
-        this._fudasMatrix = this._karutaLogic.fudasMatrix(fudasPlayer1, fudasPlayer2);
+        const fudaMatrixPlayer1 = this._karutaLogicPlayer1.fudasMatrix(fudasPlayer1, fudasPlayer2);
+        const fudaMatrixPlayer2 = this._karutaLogicPlayer1.fudasMatrix(fudasPlayer2, fudasPlayer1);
+        for (let row = 0; row < config.N_FUDA_Y() / 2; row++) {
+            for (let column = 0; column < config.N_FUDA_X(); column++) {
+                this._fudasMatrix[row][column] = fudaMatrixPlayer1[row][column];
+            }
+        }
+
+        for (let row = config.N_FUDA_Y() / 2; row < config.N_FUDA_Y(); row++) {
+            for (let column = 0; column < config.N_FUDA_X(); column++) {
+                this._fudasMatrix[row][column] = fudaMatrixPlayer2[config.N_FUDA_Y() - row][config.N_FUDA_X() - column - 1];
+            }
+        }
     }
 
-    public okurifuda(from: number, to: number): void {
-        const okurifuda = this._karutaLogic.okurifuda(from, to, this._fudasMatrix.slice());
+    public okurifuda(from: number): void {
+        function revRc(rc: { row: number, column: number }): { row: number, column: number } {
+            return { row: config.N_FUDA_Y() - rc.row - 1, column: config.N_FUDA_X() - rc.column - 1 }
+        }
 
-        this._fudasMatrix[okurifuda.toRowColumn.row][okurifuda.toRowColumn.column] = this._fudasMatrix[okurifuda.fromRowColumn.row][okurifuda.toRowColumn.column];
-        this._fudasMatrix[okurifuda.fromRowColumn.row][okurifuda.fromRowColumn.column] = -1;
+        let oldRowColumn = { row: 0, column: 0 };
+        let newRowColumn = { row: 0, column: 0 };
+        if (from === 1) {
+            oldRowColumn = this._karutaLogicPlayer1.sendOkurifuda(this._fudasMatrix.slice());
+            newRowColumn = revRc(this._karutaLogicPlayer2.receiveOkurifuda(this.getReversedMatrix(), revRc(oldRowColumn)));
+        } else {
+            oldRowColumn = revRc(this._karutaLogicPlayer2.sendOkurifuda(this.getReversedMatrix()));
+            newRowColumn = this._karutaLogicPlayer1.receiveOkurifuda(this._fudasMatrix.slice(), oldRowColumn);
+        }
+        this._fudasMatrix[newRowColumn.row][newRowColumn.column] = this._fudasMatrix[oldRowColumn.row][oldRowColumn.column];
+        this._fudasMatrix[oldRowColumn.row][oldRowColumn.column] = -1;
     }
 
     public getFudaRowColumnFromFudaId(fudaId: number): { row: number, column: number } | null {
@@ -133,10 +158,12 @@ export class FudasOnFieldMatrix {
         const distancePlayer1 = Math.pow(fudaCenterX - handXyPlayer1.x, 2) + Math.pow(fudaCenterY - handXyPlayer1.y, 2);
         const distancePlayer2 = Math.pow(fudaCenterX - handXyPlayer2.x, 2) + Math.pow(fudaCenterY - handXyPlayer2.y, 2);
 
-        if (distancePlayer1 <= distancePlayer2) {
+        if (distancePlayer1 < distancePlayer2) {
             return 1;
-        } else {
+        } else if (distancePlayer1 > distancePlayer2) {
             return 2;
+        } else {
+            return Math.floor(Math.random() * 2) + 1;
         }
     }
 
@@ -174,6 +201,17 @@ export class FudasOnFieldMatrix {
             return 2;
         }
         return null;
+    }
+
+    public getReversedMatrix(): number[][] {
+        let reversedMatrix: number[][] = [];
+        for (let row = 0; row < config.N_FUDA_Y(); row++) {
+            reversedMatrix.push([]);
+            for (let column = 0; column < config.N_FUDA_X(); column++) {
+                reversedMatrix[row][column] = this._fudasMatrix[config.N_FUDA_Y() - row - 1][config.N_FUDA_X() - column - 1];
+            }
+        }
+        return reversedMatrix;
     }
 
     public render(context: CanvasRenderingContext2D): void {
