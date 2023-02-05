@@ -4,7 +4,7 @@ import { FudasOnFieldMatrix } from "./FudasOnFieldMatrix";
 import { config } from "./Config";
 import { KarutaLogicRandom } from "./KarutaLogics/KarutaLogicRandom";
 import { logger } from "./Logger";
-import { KarutaLogicScf } from "./KarutaLogics/KarutaLogicScf";
+import { KarutaLogicKanaDepthRowWeights } from "./KarutaLogics/KarutaLogicKanaDepthRowWeights";
 
 
 const karutaField: HTMLCanvasElement = document.querySelector<HTMLCanvasElement>("#karuta_field")!;
@@ -12,7 +12,9 @@ karutaField.height = config.FIELD_HEIGHT() + 10;
 karutaField.width = config.FIELD_WIDTH() + 10;
 const context = karutaField.getContext("2d")!;
 
-const player1Logic = new KarutaLogicRandom();
+const player1Logic = new KarutaLogicKanaDepthRowWeights(
+    [120, 80, 60, 50, 40, 30, 20, 10, 0, 0, 0, 0, 0, 0],
+    [1.2, 1.1, 1, 1, 0.9, 0.7]);
 const player2Logic = new KarutaLogicRandom();
 
 const fudasOnFieldMatrix = new FudasOnFieldMatrix(player1Logic, player2Logic);

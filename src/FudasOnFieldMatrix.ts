@@ -65,7 +65,7 @@ export class FudasOnFieldMatrix {
         }
 
         const fudaMatrixPlayer1 = this._karutaLogicPlayer1.fudasMatrix(fudasPlayer1, fudasPlayer2);
-        const fudaMatrixPlayer2 = this._karutaLogicPlayer1.fudasMatrix(fudasPlayer2, fudasPlayer1);
+        const fudaMatrixPlayer2 = this._karutaLogicPlayer2.fudasMatrix(fudasPlayer2, fudasPlayer1);
         for (let row = 0; row < config.N_FUDA_Y() / 2; row++) {
             for (let column = 0; column < config.N_FUDA_X(); column++) {
                 this._fudasMatrix[row][column] = fudaMatrixPlayer1[row][column];
