@@ -14,16 +14,28 @@ karutaField.width = config.FIELD_WIDTH() + 10;
 const context = karutaField.getContext("2d")!;
 
 const player1Logic = new KarutaLogicManual(
-    document.querySelector<HTMLDivElement>("div#message_box")!,
-    document.querySelector<HTMLTextAreaElement>("textarea#fudas_matrix")!,
-    document.querySelector<HTMLInputElement>("input#initial_hand_x")!,
-    document.querySelector<HTMLInputElement>("input#send_okurifuda_row")!,
-    document.querySelector<HTMLInputElement>("input#send_okurifuda_column")!,
-    document.querySelector<HTMLInputElement>("input#receive_okurifuda_row")!,
-    document.querySelector<HTMLInputElement>("input#receive_okurifuda_column")!,
-    document.querySelector<HTMLButtonElement>("button#submission_button")!
+    document.querySelector<HTMLDivElement>("div#player1 > div#message_box")!,
+    document.querySelector<HTMLTextAreaElement>("div#player1 > textarea#fudas_matrix")!,
+    document.querySelector<HTMLInputElement>("div#player1 > input#initial_hand_x")!,
+    document.querySelector<HTMLInputElement>("div#player1 > input#send_okurifuda_row")!,
+    document.querySelector<HTMLInputElement>("div#player1 > input#send_okurifuda_column")!,
+    document.querySelector<HTMLInputElement>("div#player1 > input#receive_okurifuda_row")!,
+    document.querySelector<HTMLInputElement>("div#player1 > input#receive_okurifuda_column")!,
+    document.querySelector<HTMLButtonElement>("div#player1 > button#submission_button")!
 );
-const player2Logic = new KarutaLogicRandom();
+const player2Logic = new KarutaLogicManual(
+    document.querySelector<HTMLDivElement>("div#player2 > div#message_box")!,
+    document.querySelector<HTMLTextAreaElement>("div#player2 > textarea#fudas_matrix")!,
+    document.querySelector<HTMLInputElement>("div#player2 > input#initial_hand_x")!,
+    document.querySelector<HTMLInputElement>("div#player2 > input#send_okurifuda_row")!,
+    document.querySelector<HTMLInputElement>("div#player2 > input#send_okurifuda_column")!,
+    document.querySelector<HTMLInputElement>("div#player2 > input#receive_okurifuda_row")!,
+    document.querySelector<HTMLInputElement>("div#player2 > input#receive_okurifuda_column")!,
+    document.querySelector<HTMLButtonElement>("div#player2 > button#submission_button")!
+);
+
+// const player1Logic = new KarutaLogicRandom();
+// const player2Logic = new KarutaLogicRandom();
 
 const fudasOnFieldMatrix = new FudasOnFieldMatrix(player1Logic, player2Logic);
 const player1 = new PlayerHandXy(player1Logic);
@@ -98,20 +110,18 @@ async function fudayomiState(frame: number): Promise<void> {
 
 async function endFudayomiState(winner: number): Promise<void> {
     logger.setGameWinner(winner);
-    fudasOnFieldMatrix.setFudasMatrix();
-    fudasOnFieldMatrix.render(context);
 
     if (gameCount < maxGameCount) {
         await initializeGameState();
     } else {
-        document.querySelector<HTMLTextAreaElement>("#game_logs")!.value = logger.toString();
+        document.querySelector<HTMLTextAreaElement>("#games_log")!.value = logger.toString();
         console.log(logger.getWinCount());
     }
 }
 
 document.querySelector("#start_games")?.addEventListener("click", () => {
 
-    document.querySelector<HTMLTextAreaElement>("#game_logs")!.value = "";
+    document.querySelector<HTMLTextAreaElement>("#games_log")!.value = "";
     maxGameCount = Number.parseInt(document.querySelector<HTMLInputElement>("#max_game_count")!.value);
     gameCount = 0;
     logger.clear();

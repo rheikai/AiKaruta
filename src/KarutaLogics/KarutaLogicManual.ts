@@ -80,7 +80,6 @@ export class KarutaLogicManual extends KarutaLogic {
                     fudasMatrix[row][column] = Number.parseInt(cells[column]);
                 }
             }
-            this._fudasMatrixTextarea.value = "";
             return fudasMatrix;
         });
     }
