@@ -5,6 +5,7 @@ import { PlayerHandXy } from "./PlayerHandXy";
 import { FudasOnFieldMatrix } from "./FudasOnFieldMatrix";
 import { KarutaLogicRandom } from "./KarutaLogics/KarutaLogicRandom";
 import { KarutaLogicKanaDepthRowWeights } from "./KarutaLogics/KarutaLogicKanaDepthRowWeights";
+import { KarutaLogicManual } from "./KarutaLogics/KarutaLogicManual";
 
 
 const karutaField: HTMLCanvasElement = document.querySelector<HTMLCanvasElement>("#karuta_field")!;
@@ -12,9 +13,16 @@ karutaField.height = config.FIELD_HEIGHT() + 10;
 karutaField.width = config.FIELD_WIDTH() + 10;
 const context = karutaField.getContext("2d")!;
 
-const player1Logic = new KarutaLogicKanaDepthRowWeights(
-    [120, 80, 60, 50, 40, 30, 20, 10, 0, 0, 0, 0, 0, 0],
-    [1.2, 1.1, 1, 1, 0.9, 0.7]);
+const player1Logic = new KarutaLogicManual(
+    document.querySelector<HTMLDivElement>("div#message_box")!,
+    document.querySelector<HTMLTextAreaElement>("textarea#fudas_matrix")!,
+    document.querySelector<HTMLInputElement>("input#initial_hand_x")!,
+    document.querySelector<HTMLInputElement>("input#send_okurifuda_row")!,
+    document.querySelector<HTMLInputElement>("input#send_okurifuda_column")!,
+    document.querySelector<HTMLInputElement>("input#receive_okurifuda_row")!,
+    document.querySelector<HTMLInputElement>("input#receive_okurifuda_column")!,
+    document.querySelector<HTMLButtonElement>("button#submission_button")!
+);
 const player2Logic = new KarutaLogicRandom();
 
 const fudasOnFieldMatrix = new FudasOnFieldMatrix(player1Logic, player2Logic);
