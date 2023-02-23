@@ -6,12 +6,12 @@ export class KarutaLogicRandom extends KarutaLogic {
         super();
     }
 
-    public override initialHandXy(fudasMatrix: number[][]): { x: number, y: number } {
-        return { x: Math.random() * (config.FIELD_WIDTH()), y: 0 };
+    public override async initialHandXy(fudasMatrix: number[][]): Promise<{ x: number, y: number }> {
+        return Promise.resolve({ x: Math.random() * (config.FIELD_WIDTH()), y: 0 });
     }
 
-    public override fudasMatrix(myFudas: number[], opponentFudas: number[]): number[][] {
-        let fudasMatrix: number[][] = super.fudasMatrix(myFudas, opponentFudas);
+    public override async fudasMatrix(myFudas: number[], opponentFudas: number[]): Promise<number[][]> {
+        let fudasMatrix: number[][] = await super.fudasMatrix(myFudas, opponentFudas);
 
         let nonreservedMyFudasMatrix: { row: number, column: number }[] = [];
         for (let row = 0; row < config.N_FUDA_Y() / 2; row++) {
@@ -37,10 +37,10 @@ export class KarutaLogicRandom extends KarutaLogic {
             nonreservedOpponentFudasMatrix.splice(index, 1);
         }
 
-        return fudasMatrix;
+        return Promise.resolve(fudasMatrix);
     }
 
-    public override sendOkurifuda(fudasMatrix: number[][]): { row: number, column: number } {
+    public override async sendOkurifuda(fudasMatrix: number[][]): Promise<{ row: number, column: number }> {
         let myFudas: { row: number, column: number }[] = [];
         for (let row = 0; row < config.N_FUDA_Y() / 2; row++) {
             for (let column = 0; column < config.N_FUDA_X(); column++) {
@@ -49,10 +49,10 @@ export class KarutaLogicRandom extends KarutaLogic {
                 }
             }
         }
-        return myFudas[Math.floor(Math.random() * myFudas.length)];
+        return Promise.resolve(myFudas[Math.floor(Math.random() * myFudas.length)]);
     }
 
-    public override receiveOkurifuda(fudasMatrix: number[][], sentFuda: { row: number, column: number }): { row: number, column: number } {
+    public override async receiveOkurifuda(fudasMatrix: number[][], sentFuda: { row: number, column: number }): Promise<{ row: number, column: number }> {
         let myFudas: { row: number, column: number }[] = [];
         for (let row = 0; row < config.N_FUDA_Y() / 2; row++) {
             for (let column = 0; column < config.N_FUDA_X(); column++) {
@@ -61,6 +61,6 @@ export class KarutaLogicRandom extends KarutaLogic {
                 }
             }
         }
-        return myFudas[Math.floor(Math.random() * myFudas.length)];
+        return Promise.resolve(myFudas[Math.floor(Math.random() * myFudas.length)]);
     }
 }

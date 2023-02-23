@@ -5,11 +5,11 @@ export abstract class KarutaLogic {
 
     }
 
-    public initialHandXy(fudasMatrix: number[][]): { x: number, y: number } {
-        return { x: 0, y: 0 };
+    public async initialHandXy(fudasMatrix: number[][]): Promise<{ x: number, y: number }> {
+        return Promise.resolve({ x: 0, y: 0 });
     }
 
-    public fudasMatrix(myFudas: number[], opponentFudas: number[]): number[][] {
+    public async fudasMatrix(myFudas: number[], opponentFudas: number[]): Promise<number[][]> {
         let fudasMatrix: number[][] = [];
         for (let row = 0; row < config.N_FUDA_Y(); row++) {
             fudasMatrix.push([]);
@@ -17,10 +17,10 @@ export abstract class KarutaLogic {
                 fudasMatrix[row].push(-1);
             }
         }
-        return fudasMatrix;
+        return Promise.resolve(fudasMatrix);
     }
 
-    public sendOkurifuda(fudasMatrix: number[][]): { row: number, column: number } {
+    public async sendOkurifuda(fudasMatrix: number[][]): Promise<{ row: number, column: number }> {
         let myFudas: { row: number, column: number }[] = [];
         for (let row = 0; row < config.N_FUDA_Y() / 2; row++) {
             for (let column = 0; column < config.N_FUDA_X(); column++) {
@@ -29,10 +29,10 @@ export abstract class KarutaLogic {
                 }
             }
         }
-        return myFudas[Math.floor(Math.random() * myFudas.length)];
+        return Promise.resolve(myFudas[Math.floor(Math.random() * myFudas.length)]);
     }
 
-    public receiveOkurifuda(fudasMatrix: number[][], sentFuda: { row: number, column: number }): { row: number, column: number } {
+    public async receiveOkurifuda(fudasMatrix: number[][], sentFuda: { row: number, column: number }): Promise<{ row: number, column: number }> {
         let myFudas: { row: number, column: number }[] = [];
         for (let row = 0; row < config.N_FUDA_Y() / 2; row++) {
             for (let column = 0; column < config.N_FUDA_X(); column++) {
@@ -41,6 +41,6 @@ export abstract class KarutaLogic {
                 }
             }
         }
-        return myFudas[Math.floor(Math.random() * myFudas.length)];
+        return Promise.resolve(myFudas[Math.floor(Math.random() * myFudas.length)]);
     }
 }

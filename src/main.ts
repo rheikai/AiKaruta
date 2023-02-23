@@ -1,9 +1,9 @@
 import { karutas } from "./karutas";
+import { config } from "./Config";
+import { logger } from "./Logger";
 import { PlayerHandXy } from "./PlayerHandXy";
 import { FudasOnFieldMatrix } from "./FudasOnFieldMatrix";
-import { config } from "./Config";
 import { KarutaLogicRandom } from "./KarutaLogics/KarutaLogicRandom";
-import { logger } from "./Logger";
 import { KarutaLogicKanaDepthRowWeights } from "./KarutaLogics/KarutaLogicKanaDepthRowWeights";
 
 
@@ -18,16 +18,42 @@ const player1Logic = new KarutaLogicKanaDepthRowWeights(
 const player2Logic = new KarutaLogicRandom();
 
 const fudasOnFieldMatrix = new FudasOnFieldMatrix(player1Logic, player2Logic);
-let player1 = new PlayerHandXy(player1Logic);
-let player2 = new PlayerHandXy(player2Logic);
-
-fudasOnFieldMatrix.setFudasMatrix();
-fudasOnFieldMatrix.render(context);
+const player1 = new PlayerHandXy(player1Logic);
+const player2 = new PlayerHandXy(player2Logic);
 
 let gameCount = 0;
-let maxGameCount = Number.parseInt(document.querySelector<HTMLInputElement>("#max_game_count")!.value);
+let maxGameCount = 0;
+let yomifudaId = -1;
+let yomaretaStr = "";
 
-function goNextFrame(yomifudaId: number, yomaretaStr: string, frame: number) {
+
+function initializeGameState(): void {
+    fudasOnFieldMatrix.setFudasMatrix().then(() => {
+        fudasOnFieldMatrix.render(context);
+        logger.newGame();
+        gameCount++;
+
+        startFudayomiState();
+    });
+}
+
+async function startFudayomiState(): Promise<void> {
+
+    yomifudaId = fudasOnFieldMatrix.selectOneFudaRandom()!;
+    logger.setYomiuda(yomifudaId);
+
+    await player1.setInitialHandXy(fudasOnFieldMatrix, false);
+    await player2.setInitialHandXy(fudasOnFieldMatrix, true);
+    logger.setHandXy(player1.getHandXy(), player2.getHandXy());
+
+    fudasOnFieldMatrix.render(context);
+    player1.renderHand(context);
+    player2.renderHand(context);
+
+    await fudayomiState(0);
+}
+
+async function fudayomiState(frame: number): Promise<void> {
     player1.setNextHandXy(yomaretaStr, fudasOnFieldMatrix);
     player2.setNextHandXy(yomaretaStr, fudasOnFieldMatrix);
     logger.setHandXy(player1.getHandXy(), player2.getHandXy());
@@ -37,15 +63,17 @@ function goNextFrame(yomifudaId: number, yomaretaStr: string, frame: number) {
     player1.renderHand(context);
     player2.renderHand(context);
 
+
     const fudaWinner = fudasOnFieldMatrix.getFudaWinner(yomifudaId, player1.getHandXy(), player2.getHandXy());
     if (fudaWinner === null) {
-        setTimeout(goNextFrame, 1000 / config.FPS() / config.PLAY_SPEED_RATIO(), yomifudaId, karutas[yomifudaId].kana.join("").substring(0, Math.ceil((1000 - frame) * config.YOMI_CHAR_PER_FRAME())), frame - 1);
+        yomaretaStr = karutas[yomifudaId].kana.join("").substring(0, Math.ceil(frame * config.YOMI_CHAR_PER_FRAME()));
+        setTimeout(await fudayomiState, 1000 / config.FPS() / config.PLAY_SPEED_RATIO(), frame + 1);
     } else {
         const takenFudaRow = fudasOnFieldMatrix.getFudaRowColumnFromFudaId(yomifudaId)!.row;
         if (fudaWinner === 1 && takenFudaRow >= config.N_FUDA_Y() / 2) {
-            fudasOnFieldMatrix.okurifudaFrom(1);
+            await fudasOnFieldMatrix.okurifudaFrom(1);
         } else if (fudaWinner === 2 && takenFudaRow < config.N_FUDA_Y() / 2) {
-            fudasOnFieldMatrix.okurifudaFrom(2);
+            await fudasOnFieldMatrix.okurifudaFrom(2);
         }
 
         fudasOnFieldMatrix.removeFuda(yomifudaId);
@@ -53,48 +81,32 @@ function goNextFrame(yomifudaId: number, yomaretaStr: string, frame: number) {
 
         const winner = fudasOnFieldMatrix.getGameWinner();
         if (winner === null) {
-            goNextYomifuda();
+            await startFudayomiState();
         } else {
-            logger.setGameWinner(winner);
-            fudasOnFieldMatrix.setFudasMatrix();
-            fudasOnFieldMatrix.render(context);
-
-            if (gameCount < maxGameCount) {
-                gameCount++;
-                logger.newGame();
-                goNextYomifuda();
-            } else {
-                document.querySelector<HTMLTextAreaElement>("#game_logs")!.value = logger.toString();
-                console.log(logger.getWinCount());
-                document.querySelector<HTMLButtonElement>("#start_games")?.click();
-            }
+            await endFudayomiState(winner);
         }
     }
 }
 
-function goNextYomifuda() {
-    const yomifudaId = fudasOnFieldMatrix.selectOneFudaRandom()!;
-    logger.setYomiuda(yomifudaId);
-
-    player1.setInitialHandXy(fudasOnFieldMatrix, false);
-    player2.setInitialHandXy(fudasOnFieldMatrix, true);
-    logger.setHandXy(player1.getHandXy(), player2.getHandXy());
-
+async function endFudayomiState(winner: number): Promise<void> {
+    logger.setGameWinner(winner);
+    fudasOnFieldMatrix.setFudasMatrix();
     fudasOnFieldMatrix.render(context);
-    player1.renderHand(context);
-    player2.renderHand(context);
 
-    goNextFrame(yomifudaId, "", 1000);
+    if (gameCount < maxGameCount) {
+        await initializeGameState();
+    } else {
+        document.querySelector<HTMLTextAreaElement>("#game_logs")!.value = logger.toString();
+        console.log(logger.getWinCount());
+    }
 }
 
 document.querySelector("#start_games")?.addEventListener("click", () => {
-    gameCount = 0;
-    gameCount++;
-    logger.clear();
+
     document.querySelector<HTMLTextAreaElement>("#game_logs")!.value = "";
     maxGameCount = Number.parseInt(document.querySelector<HTMLInputElement>("#max_game_count")!.value);
-    logger.newGame();
-    console.log("NEW GAME!");
-    goNextYomifuda();
+    gameCount = 0;
+    logger.clear();
+    console.log("NEW GAMES!");
+    initializeGameState();
 });
-

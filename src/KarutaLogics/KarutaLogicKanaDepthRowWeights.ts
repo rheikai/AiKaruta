@@ -13,7 +13,7 @@ export class KarutaLogicKanaDepthRowWeights extends KarutaLogicRandom {
         this._rowWeights = rowWeights;
     }
 
-    public override initialHandXy(fudasMatrix: number[][]): { x: number, y: number } {
+    public override async initialHandXy(fudasMatrix: number[][]): Promise<{ x: number, y: number }> {
         const kanaTree = this.getKanaTree(fudasMatrix);
         const fudasOnField = this.getFudasOnField(fudasMatrix);
 
@@ -28,8 +28,8 @@ export class KarutaLogicKanaDepthRowWeights extends KarutaLogicRandom {
         return { x: columnWeight / weightSum / config.N_FUDA_X() * config.FIELD_WIDTH(), y: 0 };
     }
 
-    public override fudasMatrix(myFudas: number[], opponentFudas: number[]): number[][] {
-        let fudasMatrix: number[][] = super.fudasMatrix(myFudas, opponentFudas);
+    public override async fudasMatrix(myFudas: number[], opponentFudas: number[]): Promise<number[][]> {
+        let fudasMatrix: number[][] = await super.fudasMatrix(myFudas, opponentFudas);
         const kanaTree = this.getKanaTree(fudasMatrix);
 
         for (let i = 0; i < 20; i++) {
@@ -78,7 +78,7 @@ export class KarutaLogicKanaDepthRowWeights extends KarutaLogicRandom {
         return fudasMatrix.slice();
     }
 
-    public override sendOkurifuda(fudasMatrix: number[][]): { row: number, column: number } {
+    public override async sendOkurifuda(fudasMatrix: number[][]): Promise<{ row: number, column: number }> {
         const kanaTree = this.getKanaTree(fudasMatrix);
 
         let fudaRcMaxDepth = { row: 0, column: 0 };
@@ -97,7 +97,7 @@ export class KarutaLogicKanaDepthRowWeights extends KarutaLogicRandom {
         return fudaRcMaxDepth;
     }
 
-    public override receiveOkurifuda(fudasMatrix: number[][], sentFuda: { row: number, column: number }): { row: number, column: number } {
+    public override async receiveOkurifuda(fudasMatrix: number[][], sentFuda: { row: number, column: number }): Promise<{ row: number, column: number }> {
         for (let row = 0; row < config.N_FUDA_Y() / 2; row++) {
             for (let column = 0; column < config.N_FUDA_X(); column++) {
                 if (fudasMatrix[row][column] === -1) {

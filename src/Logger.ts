@@ -46,10 +46,11 @@ class Logger {
     public getWinCount(): { player1: number, player2: number } {
         let winCountPlayer1 = 0;
         let winCountPlayer2 = 0;
+        let a = 0;
         for (let game of this._logs) {
             if (game.winner === 1) {
                 winCountPlayer1++;
-            } else {
+            } else if (game.winner === 2) {
                 winCountPlayer2++;
             }
         }

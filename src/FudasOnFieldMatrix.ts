@@ -43,7 +43,7 @@ export class FudasOnFieldMatrix {
         return this._fudasMatrix.slice();
     }
 
-    public setFudasMatrix(): void {
+    public async setFudasMatrix(): Promise<void> {
         let fudasPlayer1: number[] = [];
         let fudasPlayer2: number[] = [];
 
@@ -64,8 +64,8 @@ export class FudasOnFieldMatrix {
             fudaIds.splice(index, 1);
         }
 
-        const fudaMatrixPlayer1 = this._karutaLogicPlayer1.fudasMatrix(fudasPlayer1, fudasPlayer2);
-        const fudaMatrixPlayer2 = this._karutaLogicPlayer2.fudasMatrix(fudasPlayer2, fudasPlayer1);
+        const fudaMatrixPlayer1 = await this._karutaLogicPlayer1.fudasMatrix(fudasPlayer1, fudasPlayer2);
+        const fudaMatrixPlayer2 = await this._karutaLogicPlayer2.fudasMatrix(fudasPlayer2, fudasPlayer1);
         for (let row = 0; row < config.N_FUDA_Y() / 2; row++) {
             for (let column = 0; column < config.N_FUDA_X(); column++) {
                 this._fudasMatrix[row][column] = fudaMatrixPlayer1[row][column];
@@ -79,7 +79,7 @@ export class FudasOnFieldMatrix {
         }
     }
 
-    public okurifudaFrom(player: number): void {
+    public async okurifudaFrom(player: number): Promise<void> {
         function revRc(rc: { row: number, column: number }): { row: number, column: number } {
             return { row: config.N_FUDA_Y() - rc.row - 1, column: config.N_FUDA_X() - rc.column - 1 };
         }
@@ -87,11 +87,11 @@ export class FudasOnFieldMatrix {
         let oldRowColumn = { row: 0, column: 0 };
         let newRowColumn = { row: 0, column: 0 };
         if (player === 1) {
-            oldRowColumn = this._karutaLogicPlayer1.sendOkurifuda(this._fudasMatrix.slice());
-            newRowColumn = revRc(this._karutaLogicPlayer2.receiveOkurifuda(this.getReversedMatrix(), revRc(oldRowColumn)));
+            oldRowColumn = await this._karutaLogicPlayer1.sendOkurifuda(this._fudasMatrix.slice());
+            newRowColumn = revRc(await this._karutaLogicPlayer2.receiveOkurifuda(this.getReversedMatrix(), revRc(oldRowColumn)));
         } else {
-            oldRowColumn = revRc(this._karutaLogicPlayer2.sendOkurifuda(this.getReversedMatrix()));
-            newRowColumn = this._karutaLogicPlayer1.receiveOkurifuda(this._fudasMatrix.slice(), oldRowColumn);
+            oldRowColumn = revRc(await this._karutaLogicPlayer2.sendOkurifuda(this.getReversedMatrix()));
+            newRowColumn = await this._karutaLogicPlayer1.receiveOkurifuda(this._fudasMatrix.slice(), oldRowColumn);
         }
         this._fudasMatrix[newRowColumn.row][newRowColumn.column] = this._fudasMatrix[oldRowColumn.row][oldRowColumn.column];
         this._fudasMatrix[oldRowColumn.row][oldRowColumn.column] = -1;

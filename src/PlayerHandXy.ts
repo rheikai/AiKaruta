@@ -16,11 +16,11 @@ export class PlayerHandXy {
         return { x: this._handXy.x, y: this._handXy.y };
     }
 
-    public setInitialHandXy(fudasMatrix: FudasOnFieldMatrix, reversed: boolean): void {
+    public async setInitialHandXy(fudasMatrix: FudasOnFieldMatrix, reversed: boolean): Promise<void> {
         if (!reversed) {
-            this._handXy = this._karutaLogic.initialHandXy(fudasMatrix.getFudasMatrix());
+            this._handXy = await this._karutaLogic.initialHandXy(fudasMatrix.getFudasMatrix());
         } else {
-            const tmp = this._karutaLogic.initialHandXy(fudasMatrix.getReversedMatrix());
+            const tmp = await this._karutaLogic.initialHandXy(fudasMatrix.getReversedMatrix());
             this._handXy = {
                 x: config.FIELD_WIDTH() - tmp.x,
                 y: config.FIELD_HEIGHT() - tmp.y
