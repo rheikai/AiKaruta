@@ -6,6 +6,7 @@ import { FudasOnFieldMatrix } from "./FudasOnFieldMatrix";
 import { KarutaLogicRandom } from "./KarutaLogics/KarutaLogicRandom";
 import { KarutaLogicKanaDepthRowWeights } from "./KarutaLogics/KarutaLogicKanaDepthRowWeights";
 import { KarutaLogicManual } from "./KarutaLogics/KarutaLogicManual";
+import { KarutaLogicGeneticAlgorithm } from "./KarutaLogics/KarutaLogicGeneticAlgorithm";
 
 
 const karutaField: HTMLCanvasElement = document.querySelector<HTMLCanvasElement>("#karuta_field")!;
@@ -13,26 +14,29 @@ karutaField.height = config.FIELD_HEIGHT() + 10;
 karutaField.width = config.FIELD_WIDTH() + 10;
 const context = karutaField.getContext("2d")!;
 
-const player1Logic = new KarutaLogicManual(
-    document.querySelector<HTMLDivElement>("div#player1 > div#message_box")!,
-    document.querySelector<HTMLTextAreaElement>("div#player1 > textarea#fudas_matrix")!,
-    document.querySelector<HTMLInputElement>("div#player1 > input#initial_hand_x")!,
-    document.querySelector<HTMLInputElement>("div#player1 > input#send_okurifuda_row")!,
-    document.querySelector<HTMLInputElement>("div#player1 > input#send_okurifuda_column")!,
-    document.querySelector<HTMLInputElement>("div#player1 > input#receive_okurifuda_row")!,
-    document.querySelector<HTMLInputElement>("div#player1 > input#receive_okurifuda_column")!,
-    document.querySelector<HTMLButtonElement>("div#player1 > button#submission_button")!
-);
-const player2Logic = new KarutaLogicManual(
-    document.querySelector<HTMLDivElement>("div#player2 > div#message_box")!,
-    document.querySelector<HTMLTextAreaElement>("div#player2 > textarea#fudas_matrix")!,
-    document.querySelector<HTMLInputElement>("div#player2 > input#initial_hand_x")!,
-    document.querySelector<HTMLInputElement>("div#player2 > input#send_okurifuda_row")!,
-    document.querySelector<HTMLInputElement>("div#player2 > input#send_okurifuda_column")!,
-    document.querySelector<HTMLInputElement>("div#player2 > input#receive_okurifuda_row")!,
-    document.querySelector<HTMLInputElement>("div#player2 > input#receive_okurifuda_column")!,
-    document.querySelector<HTMLButtonElement>("div#player2 > button#submission_button")!
-);
+const player1Logic = new KarutaLogicGeneticAlgorithm(document.querySelector<HTMLTextAreaElement>("div#player1 > textarea#gene")!.value);
+const player2Logic = new KarutaLogicGeneticAlgorithm(document.querySelector<HTMLTextAreaElement>("div#player2 > textarea#gene")!.value);
+
+// const player1Logic = new KarutaLogicManual(
+//     document.querySelector<HTMLDivElement>("div#player1 > div#message_box")!,
+//     document.querySelector<HTMLTextAreaElement>("div#player1 > textarea#fudas_matrix")!,
+//     document.querySelector<HTMLInputElement>("div#player1 > input#initial_hand_x")!,
+//     document.querySelector<HTMLInputElement>("div#player1 > input#send_okurifuda_row")!,
+//     document.querySelector<HTMLInputElement>("div#player1 > input#send_okurifuda_column")!,
+//     document.querySelector<HTMLInputElement>("div#player1 > input#receive_okurifuda_row")!,
+//     document.querySelector<HTMLInputElement>("div#player1 > input#receive_okurifuda_column")!,
+//     document.querySelector<HTMLButtonElement>("div#player1 > button#submission_button")!
+// );
+// const player2Logic = new KarutaLogicManual(
+//     document.querySelector<HTMLDivElement>("div#player2 > div#message_box")!,
+//     document.querySelector<HTMLTextAreaElement>("div#player2 > textarea#fudas_matrix")!,
+//     document.querySelector<HTMLInputElement>("div#player2 > input#initial_hand_x")!,
+//     document.querySelector<HTMLInputElement>("div#player2 > input#send_okurifuda_row")!,
+//     document.querySelector<HTMLInputElement>("div#player2 > input#send_okurifuda_column")!,
+//     document.querySelector<HTMLInputElement>("div#player2 > input#receive_okurifuda_row")!,
+//     document.querySelector<HTMLInputElement>("div#player2 > input#receive_okurifuda_column")!,
+//     document.querySelector<HTMLButtonElement>("div#player2 > button#submission_button")!
+// );
 
 // const player1Logic = new KarutaLogicRandom();
 // const player2Logic = new KarutaLogicRandom();

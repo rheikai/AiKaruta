@@ -9,7 +9,8 @@ class games:
         self.player2_logic = player2_logic
 
         self.driver = webdriver.Firefox()
-        self.driver.get("http://localhost:8080")
+        self.driver.get("https://www.aikaruta.rheikai.com")
+        #  self.driver.get("http://localhost:8080")
 
         self.driver.find_element(
             By.CSS_SELECTOR, "input#max_game_count").clear()
