@@ -7,8 +7,8 @@ import math
 class games_ga:
     def __init__(self, max_game_count, player1_gene, player2_gene):
         self.driver = webdriver.Firefox()
-        # self.driver.get("https://www.aikaruta.rheikai.com")
-        self.driver.get("http://localhost:8080")
+        self.driver.get("https://www.aikaruta.rheikai.com")
+        # self.driver.get("http://localhost:8080")
 
         self.driver.find_element(
             By.CSS_SELECTOR, "input#max_game_count").clear()
