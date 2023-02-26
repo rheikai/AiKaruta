@@ -14,7 +14,6 @@ const player2Logic = new KarutaLogicGeneticAlgorithm(fs.readFileSync(player2Gene
 GameConfig.initialize(true, null, player1Logic, player2Logic);
 
 logger.clear();
-console.log("NEW GAMES!");
 runGames(20).then(() => {
     fs.writeFileSync(gamesLogFilepath, logger.toString());
 });

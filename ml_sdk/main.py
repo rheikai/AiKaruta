@@ -1,25 +1,16 @@
 from games_ga import games_ga
-from player_logic import player_logic
 import threading
 import json
 import math
 import random
-from selenium import webdriver
 import os
 
 MAX_GAME_COUNT = 20
-CONCURRENCY = 5
-
-drivers = [webdriver.Firefox() for _ in range(5)]
-for driver in drivers:
-    driver.get("https://www.aikaruta.rheikai.com")
-    # driver.get("http://localhost:8080")
-
 
 parents = json.load(open("./ml_sdk/genes/gen_0.json"))
 
 gen = 0
-for i in range(100):
+for i in range(100000000):
     if os.path.exists(f"./ml_sdk/genes/gen_{i}.json"):
         gen = i
         children_gene = json.load(open(f"./ml_sdk/genes/gen_{i}.json"))
@@ -28,7 +19,8 @@ for i in range(100):
 
 
 skip = True
-for generation in range(gen, 100):
+for generation in range(gen, 10000):
+    print(generation)
     if not skip:
         children_gene = []
         for i in range(100):
@@ -52,7 +44,7 @@ for generation in range(gen, 100):
     parents = []
 
     def run_game(i):
-        gs = games_ga(drivers[i % CONCURRENCY], MAX_GAME_COUNT,
+        gs = games_ga(MAX_GAME_COUNT,
                       children_gene[i*2], children_gene[i*2+1])
         games_log = gs.start_games()
         player1_win_count = 0
@@ -67,11 +59,10 @@ for generation in range(gen, 100):
     # for i in range(50):
     #     run_game(i)
 
-    for i in range(int(50/CONCURRENCY)):
-        threads = []
-        for j in range(int(i*CONCURRENCY), int((i+1)*CONCURRENCY)):
-            threads.append(threading.Thread(None, run_game, None, (j,)))
-        for thread in threads:
-            thread.start()
-        for thread in threads:
-            thread.join()
+    threads = []
+    for i in range(50):
+        threads.append(threading.Thread(None, run_game, None, (i,)))
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()

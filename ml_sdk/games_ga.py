@@ -1,40 +1,27 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
 import json
-import time
+import os
+import subprocess
+import random
 
 
 class games_ga:
-    def __init__(self, driver, max_game_count, player1_gene, player2_gene):
-        self.driver = driver
-        self.driver.find_element(
-            By.CSS_SELECTOR, "input#max_game_count").clear()
-        self.driver.find_element(
-            By.CSS_SELECTOR, "input#max_game_count").send_keys(str(max_game_count))
-
-        self.games_log = self.driver.find_element(
-            By.CSS_SELECTOR, "textarea#games_log")
-        self.games_log.clear()
-
-        self.p1_gene = self.driver.find_element(
-            By.CSS_SELECTOR, "div#player1 > textarea#gene")
-        self.p1_gene.clear()
-        self.p1_gene.send_keys(
-            "\t".join([str(round(val*100)/100) for val in player1_gene]))
-
-        self.p2_gene = self.driver.find_element(
-            By.CSS_SELECTOR, "div#player2 > textarea#gene")
-        self.p2_gene.clear()
-        self.p2_gene.send_keys(
-            "\t".join([str(round(val*100)/100) for val in player2_gene]))
+    def __init__(self, max_game_count, player1_gene, player2_gene):
+        self.max_game_count = max_game_count
+        self.player1_gene = player1_gene
+        self.player2_gene = player2_gene
 
     def start_games(self):
-        self.driver.find_element(By.CSS_SELECTOR, "button#start_games").click()
-        games_log = self.__run_games()
+        player1_gene_filepath = "./ml_sdk/tmp/"+str(random.random())
+        player2_gene_filepath = "./ml_sdk/tmp/"+str(random.random())
+        games_log_filepath = "./ml_sdk/tmp/"+str(random.random())
+        open(player1_gene_filepath, "w").write(
+            "\t".join([str(val) for val in self.player1_gene]))
+        open(player2_gene_filepath, "w").write(
+            "\t".join([str(val) for val in self.player2_gene]))
+        subprocess.run(
+            f"node ./nodejs/main.js {player1_gene_filepath} {player2_gene_filepath} {games_log_filepath}", shell=True)
+        games_log = json.load(open(games_log_filepath))
+        os.remove(player1_gene_filepath)
+        os.remove(player2_gene_filepath)
+        os.remove(games_log_filepath)
         return games_log
-
-    def __run_games(self):
-        while (True):
-            time.sleep(1)
-            if self.games_log.get_attribute("value").strip() != "":
-                return json.loads(self.games_log.get_attribute("value").strip())

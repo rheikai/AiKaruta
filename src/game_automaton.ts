@@ -8,7 +8,6 @@ let yomaretaStr = "";
 
 export async function runGames(maxGameCount: number): Promise<void> {
     for (let i = 0; i < maxGameCount; i++) {
-        console.log(i);
         await initializeGameState();
     }
 }
