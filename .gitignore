@@ -4,3 +4,4 @@ dist/
 package-lock.json
 __pycache__
 geckodriver.log
+ml_sdk/genes

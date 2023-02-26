@@ -1,8 +1,9 @@
 {
     "compilerOptions": {
         "sourceMap": true,
-        "target": "ES5",
-        "module": "ES2015",
-        "strict": true
+        "target": "ES6",
+        "module": "ES2020",
+        "strict": true,
+        "moduleResolution": "node"
     }
 }
