@@ -6,24 +6,27 @@ import random
 import os
 
 MAX_GAME_COUNT = 20
+NUM_CHILDREN = 1800
+CONCURRENCY = 10
 
-parents = json.load(open("./ml_sdk/genes/gen_0.json"))
+parents = [[(random.random()) * 100 for _ in range(3600)]
+           for _ in range(int(NUM_CHILDREN/2))]
 
 gen = 0
-for i in range(100000000):
+skip = False
+for i in range(100000, 0, -1):
     if os.path.exists(f"./ml_sdk/genes/gen_{i}.json"):
         gen = i
         children_gene = json.load(open(f"./ml_sdk/genes/gen_{i}.json"))
-    else:
+        skip = True
         break
 
 
-skip = True
-for generation in range(gen, 10000):
+for generation in range(gen, 100000):
     print(generation)
     if not skip:
         children_gene = []
-        for i in range(100):
+        for i in range(NUM_CHILDREN):
             parent_1 = parents[math.floor(random.random() * 50)]
             parent_2 = parents[math.floor(random.random() * 50)]
 
@@ -39,6 +42,8 @@ for generation in range(gen, 10000):
             children_gene.append(child_gene)
         json.dump(children_gene, open(
             f"./ml_sdk/genes/gen_{generation}.json", "w"))
+        if generation % 20 != 0:
+            os.remove(f"./ml_sdk/genes/gen_{generation-1}.json")
     skip = False
 
     parents = []
@@ -56,12 +61,18 @@ for generation in range(gen, 10000):
         else:
             parents.append(children_gene[i*2+1])
 
-    # for i in range(50):
+    def run_games(f, t):
+        for i in range(f, t):
+            run_game(i)
+
+    # for i in range(NUM_CHILDREN):
     #     run_game(i)
 
+    div = int(NUM_CHILDREN/CONCURRENCY/2)
     threads = []
-    for i in range(50):
-        threads.append(threading.Thread(None, run_game, None, (i,)))
+    for cpu in range(CONCURRENCY):
+        threads.append(threading.Thread(
+            None, run_games, None, (div*cpu, div*(cpu+1),)))
     for thread in threads:
         thread.start()
     for thread in threads:

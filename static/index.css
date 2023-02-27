@@ -1,0 +1,14 @@
+body {
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+    background-color: #d6e9ca;
+}
+
+canvas#karuta_field {
+    height: 544px;
+    width: 624px;
+    padding: 10px calc(50vw - 312px);
+    margin: 0px;
+    background-color: #abdcad;
+}

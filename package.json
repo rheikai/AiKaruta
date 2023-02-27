@@ -1,8 +1,8 @@
 {
   "scripts": {
-    "release": "rm dist -rf; rm docs -rf; mkdir dist; cp index.html dist; webpack --config ./webpack_browser.config.js; mv dist docs; echo www.aikaruta.rheikai.com > docs/CNAME;",
-    "nodejs": "rm dist -rf; rm nodejs -rf; webpack --config ./webpack_nodejs.config.js; mv dist nodejs;",
-    "watch": "rm dist -rf; mkdir dist; cp index.html dist; webpack-dev-server --config ./webpack_browser.config.js;"
+    "release": "rm -rf dist; rm -rf docs; cp -r static dist; webpack --config ./webpack_browser.config.js; mv dist docs; echo www.aikaruta.rheikai.com > docs/CNAME;",
+    "nodejs": "rm -rf dist; rm -rf nodejs; webpack --config ./webpack_nodejs.config.js; mv dist nodejs;",
+    "watch": "rm -rf dist; cp -r static dist; webpack-dev-server --config ./webpack_browser.config.js;"
   },
   "dependencies": {
     "ts-loader": "^9.4.2",
